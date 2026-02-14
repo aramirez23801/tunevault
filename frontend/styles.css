@@ -570,9 +570,6 @@ body {
    ============================================================ */
 
 #page-home {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: relative;
   overflow: hidden;
   padding: 0;
@@ -716,23 +713,51 @@ body {
   height: 4px;
 }
 
+/* Grid layout for genre detail and similar views */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 32px;
+  padding: 8px;
+  margin-bottom: 32px;
+}
+
+.card-grid .card {
+  min-width: unset;
+  max-width: unset;
+  width: 100%;
+}
+
 .card {
-  min-width: 180px;
-  max-width: 180px;
+  min-width: 200px;
+  max-width: 200px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px;
   cursor: pointer;
   transition: var(--transition);
-  text-align: center;
+  overflow: hidden;
 }
 
 .card:hover {
-  background: var(--bg-card-hover);
   border-color: var(--primary);
   transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(124, 92, 252, 0.15);
+}
+
+.card-cover {
+  width: 100%;
+  aspect-ratio: 1.2;
+  background: linear-gradient(
+    135deg,
+    var(--bg-card-hover) 0%,
+    var(--bg-dark) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: var(--text-muted);
 }
 
 .card-icon {
@@ -743,7 +768,7 @@ body {
 .card-title {
   font-size: 14px;
   font-weight: 600;
-  margin-bottom: 4px;
+  padding: 14px 16px 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -752,6 +777,7 @@ body {
 .card-subtitle {
   font-size: 12px;
   color: var(--text-secondary);
+  padding: 0 16px 14px;
 }
 
 /* ============================================================
