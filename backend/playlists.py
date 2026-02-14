@@ -56,6 +56,54 @@ def get_playlists(api_key: str):
 
     return {"count": len(playlists), "playlists": playlists}
 
+@router.get("/playlists/{playlist_id}/tracks")
+def get_playlist_tracks(playlist_id: int, api_key: str):
+    """Returns all tracks in a specific playlist. Verifies playlist ownership."""
+    user = verify_api_key(api_key)
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # Verify the playlist belongs to this user
+    cur.execute(
+        "SELECT playlist_id, name, cover_image_url FROM playlists WHERE playlist_id = %s AND user_id = %s",
+        (playlist_id, user["user_id"])
+    )
+    playlist = cur.fetchone()
+    if playlist is None:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Playlist not found")
+
+    # Get all tracks in the playlist
+    cur.execute("""
+        SELECT t.track_id, t.name, a.title AS album, ar.name AS artist, g.name AS genre,
+               t.milliseconds, pt.added_at
+        FROM playlist_tracks pt
+        JOIN track t ON pt.track_id = t.track_id
+        JOIN album a ON t.album_id = a.album_id
+        JOIN artist ar ON a.artist_id = ar.artist_id
+        LEFT JOIN genre g ON t.genre_id = g.genre_id
+        WHERE pt.playlist_id = %s
+        ORDER BY pt.added_at DESC
+    """, (playlist_id,))
+
+    columns = [desc[0] for desc in cur.description]
+    tracks = [dict(zip(columns, row)) for row in cur.fetchall()]
+    cur.close()
+    conn.close()
+
+    for t in tracks:
+        t["added_at"] = str(t["added_at"])
+
+    return {
+        "playlist_id": playlist[0],
+        "name": playlist[1],
+        "cover_image_url": playlist[2],
+        "track_count": len(tracks),
+        "tracks": tracks
+    }
+
 @router.post("/playlists/{playlist_id}/tracks")
 def add_track_to_playlist(playlist_id: int, track: AddTrackRequest, api_key: str):
     """Adds a track to a playlist. Verifies playlist ownership and track existence."""
