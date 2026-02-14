@@ -135,6 +135,47 @@ def get_tracks(api_key: str, limit: int = 20, offset: int = 0):
 
     return {"count": len(tracks), "tracks": tracks}
 
+@app.get("/tracks/search")
+def search_tracks(api_key: str, q: str = None, genre: str = None, artist: str = None, limit: int = 20, offset: int = 0):
+    verify_api_key(api_key)
+
+    query = """
+        SELECT t.track_id, t.name, a.title AS album, ar.name AS artist, g.name AS genre,
+               t.milliseconds, t.unit_price
+        FROM track t
+        JOIN album a ON t.album_id = a.album_id
+        JOIN artist ar ON a.artist_id = ar.artist_id
+        LEFT JOIN genre g ON t.genre_id = g.genre_id
+        WHERE 1=1
+    """
+    params = []
+
+    if q:
+        query += " AND (LOWER(t.name) LIKE %s OR LOWER(ar.name) LIKE %s)"
+        params.extend([f"%{q.lower()}%", f"%{q.lower()}%"])
+
+    if genre:
+        query += " AND LOWER(g.name) = %s"
+        params.append(genre.lower())
+
+    if artist:
+        query += " AND LOWER(ar.name) LIKE %s"
+        params.append(f"%{artist.lower()}%")
+
+    query += " ORDER BY t.name LIMIT %s OFFSET %s"
+    params.extend([limit, offset])
+
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(query, params)
+
+    columns = [desc[0] for desc in cur.description]
+    tracks = [dict(zip(columns, row)) for row in cur.fetchall()]
+    cur.close()
+    conn.close()
+
+    return {"count": len(tracks), "tracks": tracks}
+
 @app.get("/tracks/{track_id}")
 def get_track(track_id: int, api_key: str):
     verify_api_key(api_key)
@@ -235,3 +276,4 @@ def get_genres(api_key: str):
     conn.close()
 
     return {"count": len(genres), "genres": genres}
+
