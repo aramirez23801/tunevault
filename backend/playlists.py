@@ -38,11 +38,11 @@ def get_playlists(api_key: str):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("""
-        SELECT p.playlist_id, p.name, p.created_at, COUNT(pt.track_id) AS track_count
+        SELECT p.playlist_id, p.name, p.created_at, p.cover_image_url, COUNT(pt.track_id) AS track_count
         FROM playlists p
         LEFT JOIN playlist_tracks pt ON p.playlist_id = pt.playlist_id
         WHERE p.user_id = %s
-        GROUP BY p.playlist_id, p.name, p.created_at
+        GROUP BY p.playlist_id, p.name, p.created_at, p.cover_image_url
         ORDER BY p.created_at DESC
     """, (user["user_id"],))
 
