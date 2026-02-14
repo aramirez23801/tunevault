@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TuneVault — Login</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="auth-overlay">
+      <div id="auth-modal">
+        <div class="auth-logo">
+          <span class="auth-logo-icon">TV</span>
+          <span>TuneVault</span>
+        </div>
+        <p class="auth-subtitle">Your personal music catalog</p>
+
+        <!-- Tabs -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" onclick="showAuthTab('login')">
+            Login
+          </button>
+          <button class="auth-tab" onclick="showAuthTab('register')">
+            Register
+          </button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login-form" class="auth-form">
+          <input
+            type="email"
+            id="login-email"
+            placeholder="Email"
+            onkeyup="handleAuthKeypress(event, 'login')"
+          />
+          <input
+            type="password"
+            id="login-password"
+            placeholder="Password"
+            onkeyup="handleAuthKeypress(event, 'login')"
+          />
+          <button class="btn-primary" onclick="handleLogin()">Sign In</button>
+          <p id="login-error" class="auth-error"></p>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register-form" class="auth-form" style="display: none">
+          <input
+            type="text"
+            id="register-username"
+            placeholder="Username"
+            onkeyup="handleAuthKeypress(event, 'register')"
+          />
+          <input
+            type="email"
+            id="register-email"
+            placeholder="Email"
+            onkeyup="handleAuthKeypress(event, 'register')"
+          />
+          <input
+            type="password"
+            id="register-password"
+            placeholder="Password"
+            onkeyup="handleAuthKeypress(event, 'register')"
+          />
+          <button class="btn-primary" onclick="handleRegister()">
+            Create Account
+          </button>
+          <p id="register-error" class="auth-error"></p>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+  </body>
+</html>

@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TuneVault</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Sidebar -->
+      <nav id="sidebar">
+        <div class="sidebar-top">
+          <div class="sidebar-logo">
+            <span class="logo-icon">TV</span>
+            <span class="logo-text">TuneVault</span>
+          </div>
+          <button class="sidebar-toggle" onclick="toggleSidebar()">
+            &#9776;
+          </button>
+        </div>
+
+        <div class="sidebar-menu">
+          <button
+            class="sidebar-item active"
+            data-page="home"
+            onclick="navigateTo('home')"
+          >
+            <span class="item-icon">&#8962;</span>
+            <span class="item-text">Home</span>
+          </button>
+          <button
+            class="sidebar-item"
+            data-page="explore"
+            onclick="navigateTo('explore')"
+          >
+            <span class="item-icon">&#9906;</span>
+            <span class="item-text">Explore</span>
+          </button>
+          <button
+            class="sidebar-item"
+            data-page="playlists"
+            onclick="navigateTo('playlists')"
+          >
+            <span class="item-icon">&#9835;</span>
+            <span class="item-text">My Playlists</span>
+          </button>
+
+          <div class="sidebar-divider"></div>
+
+          <button class="sidebar-item disabled">
+            <span class="item-icon">&#9733;</span>
+            <span class="item-text">Generate Covers</span>
+            <span class="coming-soon">Soon</span>
+          </button>
+          <button class="sidebar-item disabled">
+            <span class="item-icon">&#9834;</span>
+            <span class="item-text">Generate Music</span>
+            <span class="coming-soon">Soon</span>
+          </button>
+          <button class="sidebar-item disabled">
+            <span class="item-icon">&#9998;</span>
+            <span class="item-text">Blog</span>
+            <span class="coming-soon">Soon</span>
+          </button>
+        </div>
+
+        <div class="sidebar-bottom">
+          <div class="sidebar-user">
+            <span class="user-icon">&#9679;</span>
+            <span class="user-name" id="sidebar-username"></span>
+          </div>
+          <button class="btn-logout" onclick="handleLogout()">Logout</button>
+        </div>
+      </nav>
+
+      <!-- Main Content Area -->
+      <main id="content">
+        <!-- Home Page -->
+        <section id="page-home" class="page active">
+          <div class="home-background"></div>
+          <div class="home-content">
+            <h1 class="home-welcome">
+              Welcome, <span id="home-username"></span>
+            </h1>
+            <p class="home-tagline">
+              Explore music. Build playlists. Make it yours.
+            </p>
+          </div>
+        </section>
+
+        <!-- Explore Page -->
+        <section id="page-explore" class="page">
+          <div class="page-header">
+            <h1>Explore</h1>
+            <div class="search-bar">
+              <input
+                type="text"
+                id="search-input"
+                placeholder="Search tracks, artists..."
+                onkeyup="handleSearch(event)"
+              />
+            </div>
+          </div>
+
+          <!-- Search Results -->
+          <div id="search-results" style="display: none">
+            <div class="section-header">
+              <h2 class="section-title">Search Results</h2>
+              <button class="btn-back" onclick="clearSearch()">Clear</button>
+            </div>
+            <div id="search-results-list" class="track-list"></div>
+          </div>
+
+          <!-- Genre Section -->
+          <div id="genre-section">
+            <h2 class="section-title">Genres</h2>
+            <div id="genre-cards" class="horizontal-scroll"></div>
+          </div>
+
+          <!-- Artist Section -->
+          <div id="artist-section">
+            <h2 class="section-title">Artists</h2>
+            <div id="artist-cards" class="horizontal-scroll"></div>
+          </div>
+
+          <!-- Genre Detail View -->
+          <div id="genre-detail" style="display: none">
+            <button class="btn-back" onclick="closeGenreDetail()">Back</button>
+            <h2 id="genre-detail-name" class="section-title"></h2>
+            <div id="genre-artists" class="horizontal-scroll"></div>
+          </div>
+
+          <!-- Artist Detail View -->
+          <div id="artist-detail" style="display: none">
+            <button class="btn-back" onclick="closeArtistDetail()">Back</button>
+            <h2 id="artist-detail-name" class="section-title"></h2>
+            <div id="artist-tracks" class="track-list"></div>
+          </div>
+        </section>
+
+        <!-- Playlists Page -->
+        <section id="page-playlists" class="page">
+          <div class="page-header">
+            <h1>My Playlists</h1>
+            <button class="btn-primary" onclick="showCreatePlaylistModal()">
+              + New Playlist
+            </button>
+          </div>
+          <div id="playlists-grid" class="playlists-grid"></div>
+        </section>
+
+        <!-- Playlist Detail Page -->
+        <section id="page-playlist-detail" class="page">
+          <button class="btn-back" onclick="navigateTo('playlists')">
+            Back to Playlists
+          </button>
+          <div class="playlist-header">
+            <div
+              class="playlist-cover-wrapper"
+              onmouseenter="showCoverOverlay()"
+              onmouseleave="hideCoverOverlay()"
+            >
+              <div id="playlist-cover" class="playlist-cover"></div>
+              <div
+                id="cover-overlay"
+                class="cover-overlay"
+                style="display: none"
+              >
+                <button onclick="showGenerateCoverModal()">
+                  Generate Cover
+                </button>
+              </div>
+            </div>
+            <div class="playlist-info">
+              <h1 id="playlist-detail-name"></h1>
+              <p id="playlist-detail-count"></p>
+              <button class="btn-danger" id="delete-playlist-btn">
+                Delete Playlist
+              </button>
+            </div>
+          </div>
+          <div id="playlist-tracks" class="track-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Add to Playlist Modal -->
+    <div id="add-to-playlist-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Add to Playlist</h2>
+          <button class="modal-close" onclick="closeAddToPlaylistModal()">
+            &#10005;
+          </button>
+        </div>
+        <p id="adding-track-name" class="modal-subtitle"></p>
+        <div id="playlist-options" class="playlist-options"></div>
+        <div class="modal-divider"></div>
+        <div class="create-new-playlist">
+          <input
+            type="text"
+            id="new-playlist-name"
+            placeholder="New playlist name..."
+          />
+          <button class="btn-primary" onclick="createPlaylistAndAdd()">
+            Create & Add
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Playlist Modal -->
+    <div id="create-playlist-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Create Playlist</h2>
+          <button class="modal-close" onclick="closeCreatePlaylistModal()">
+            &#10005;
+          </button>
+        </div>
+        <input
+          type="text"
+          id="create-playlist-name"
+          placeholder="Playlist name..."
+        />
+        <button class="btn-primary" onclick="createPlaylist()">Create</button>
+      </div>
+    </div>
+
+    <!-- Generate Cover Modal -->
+    <div id="generate-cover-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Generate Playlist Cover</h2>
+          <button class="modal-close" onclick="closeGenerateCoverModal()">
+            &#10005;
+          </button>
+        </div>
+        <p class="modal-subtitle">
+          Upload a photo and we'll combine it with your playlist's vibe to
+          create a unique cover.
+        </p>
+        <input type="file" id="cover-upload" accept="image/*" />
+        <div id="cover-preview" class="cover-preview"></div>
+        <button class="btn-primary" onclick="generateCover()">
+          Generate Cover
+        </button>
+        <div id="cover-result" style="display: none">
+          <img id="generated-cover" class="generated-cover" />
+          <div class="cover-actions">
+            <button class="btn-primary" onclick="saveCover()">
+              Save as Cover
+            </button>
+            <button class="btn-secondary" onclick="generateCover()">
+              Try Again
+            </button>
+            <button class="btn-secondary" onclick="closeGenerateCoverModal()">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts (order matters) -->
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/explore.js"></script>
+    <script src="js/playlists.js"></script>
+  </body>
+</html>

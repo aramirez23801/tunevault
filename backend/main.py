@@ -2,8 +2,17 @@ from fastapi import FastAPI
 from auth import router as auth_router
 from music import router as music_router
 from playlists import router as playlists_router
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="TuneVault API", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Register routers — each file handles its own group of endpoints
 app.include_router(auth_router)
