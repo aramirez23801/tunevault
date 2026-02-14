@@ -96,3 +96,63 @@ def add_track_to_playlist(playlist_id: int, track: AddTrackRequest, api_key: str
         conn.close()
 
     return {"message": "Track added to playlist"}
+
+@router.delete("/playlists/{playlist_id}")
+def delete_playlist(playlist_id: int, api_key: str):
+    """Deletes a playlist and all its tracks. Verifies playlist ownership."""
+    user = verify_api_key(api_key)
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # Verify the playlist belongs to this user
+    cur.execute(
+        "SELECT playlist_id FROM playlists WHERE playlist_id = %s AND user_id = %s",
+        (playlist_id, user["user_id"])
+    )
+    if cur.fetchone() is None:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Playlist not found")
+
+    # Delete the playlist (CASCADE will remove playlist_tracks automatically)
+    cur.execute("DELETE FROM playlists WHERE playlist_id = %s", (playlist_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {"message": "Playlist deleted"}
+
+@router.delete("/playlists/{playlist_id}/tracks/{track_id}")
+def remove_track_from_playlist(playlist_id: int, track_id: int, api_key: str):
+    """Removes a track from a playlist. Verifies playlist ownership."""
+    user = verify_api_key(api_key)
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # Verify the playlist belongs to this user
+    cur.execute(
+        "SELECT playlist_id FROM playlists WHERE playlist_id = %s AND user_id = %s",
+        (playlist_id, user["user_id"])
+    )
+    if cur.fetchone() is None:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Playlist not found")
+
+    # Delete the track from the playlist
+    cur.execute(
+        "DELETE FROM playlist_tracks WHERE playlist_id = %s AND track_id = %s",
+        (playlist_id, track_id)
+    )
+    if cur.rowcount == 0:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Track not in playlist")
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {"message": "Track removed from playlist"}
