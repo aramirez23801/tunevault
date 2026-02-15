@@ -69,7 +69,8 @@ async def upload_to_supabase(image_url: str, playlist_id: int) -> str:
     )
 
     # Get the permanent public URL
-    public_url = supabase.storage.from_(COVERS_BUCKET).get_public_url(filename)
+    supabase_url = os.getenv("SUPABASE_URL")
+    public_url = f"{supabase_url}/storage/v1/object/public/{COVERS_BUCKET}/{filename}"
 
     return public_url
 
