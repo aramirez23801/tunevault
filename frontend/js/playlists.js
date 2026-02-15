@@ -360,11 +360,105 @@ function closeGenerateCoverModal() {
   document.getElementById('generate-cover-modal').style.display = 'none'
 }
 
-// Placeholder for AI cover generation (to be implemented)
-function generateCover() {
-  showToast('Cover generation coming soon!', 'error')
+// ============================================================
+// AI Cover Generation
+// ============================================================
+
+let generatedCoverUrl = null
+
+async function generateCover() {
+  const fileInput = document.getElementById('cover-upload')
+  if (!fileInput.files || fileInput.files.length === 0) {
+    showToast('Please upload a photo first', 'error')
+    return
+  }
+
+  // Show loading state
+  const generateBtn = document.querySelector(
+    '#generate-cover-modal .btn-primary'
+  )
+  const originalText = generateBtn.textContent
+  generateBtn.textContent = 'Generating... (15-30s)'
+  generateBtn.disabled = true
+  document.getElementById('cover-result').style.display = 'none'
+
+  // Build form data with the image
+  const formData = new FormData()
+  formData.append('image', fileInput.files[0])
+
+  try {
+    const apiKey = sessionStorage.getItem('api_key')
+    const response = await fetch(
+      API_BASE +
+        '/playlists/' +
+        currentPlaylistId +
+        '/generate-cover?api_key=' +
+        apiKey,
+      {
+        method: 'POST',
+        body: formData
+      }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      showToast(data.detail || 'Generation failed', 'error')
+      return
+    }
+
+    // Show the generated image
+    generatedCoverUrl = data.image_url
+    document.getElementById('generated-cover').src = generatedCoverUrl
+    document.getElementById('cover-result').style.display = 'block'
+    showToast('Cover generated!')
+    console.log('DALL-E prompt used:', data.prompt_used) // DELETE LATER!!!
+    console.log('Playlist analysis:', data.playlist_analysis) // DELETE LATER!!!
+  } catch (error) {
+    showToast('Failed to generate cover', 'error')
+  } finally {
+    generateBtn.textContent = originalText
+    generateBtn.disabled = false
+  }
 }
 
-function saveCover() {
-  showToast('Cover generation coming soon!', 'error')
+async function saveCover() {
+  if (!generatedCoverUrl) {
+    showToast('No cover to save', 'error')
+    return
+  }
+
+  const response = await apiRequest(
+    '/playlists/' +
+      currentPlaylistId +
+      '/cover?image_url=' +
+      encodeURIComponent(generatedCoverUrl),
+    { method: 'PUT' }
+  )
+
+  if (!response) return
+
+  if (response.ok) {
+    showToast('Cover saved!')
+    closeGenerateCoverModal()
+    openPlaylistDetail(currentPlaylistId)
+  } else {
+    showToast('Failed to save cover', 'error')
+  }
 }
+// Preview uploaded image in the modal
+document.addEventListener('DOMContentLoaded', function () {
+  const uploadInput = document.getElementById('cover-upload')
+  if (uploadInput) {
+    uploadInput.addEventListener('change', function () {
+      const preview = document.getElementById('cover-preview')
+      if (this.files && this.files[0]) {
+        const reader = new FileReader()
+        reader.onload = function (e) {
+          preview.innerHTML = '<img src="' + e.target.result + '" />'
+        }
+        reader.readAsDataURL(this.files[0])
+      }
+    })
+  }
+})

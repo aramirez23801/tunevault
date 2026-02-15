@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from auth import router as auth_router
 from music import router as music_router
 from playlists import router as playlists_router
+from cover_generator import router as cover_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="TuneVault API", version="1.0.0")
@@ -18,6 +19,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(music_router)
 app.include_router(playlists_router)
+app.include_router(cover_router)
 
 @app.get("/")
 def health_check():
