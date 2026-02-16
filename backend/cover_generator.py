@@ -62,11 +62,12 @@ async def upload_to_supabase(image_url: str, playlist_id: int) -> str:
     filename = f"playlist_{playlist_id}/{uuid.uuid4().hex}.png"
 
     # Upload to Supabase Storage
-    supabase.storage.from_(COVERS_BUCKET).upload(
+    result = supabase.storage.from_(COVERS_BUCKET).upload(
         path=filename,
         file=image_bytes,
         file_options={"content-type": "image/png", "upsert": "true"}
     )
+    print(f"SUPABASE UPLOAD RESULT: {result}")
 
     # Get the permanent public URL
     supabase_url = os.getenv("SUPABASE_URL")
@@ -346,7 +347,8 @@ async def generate_cover(playlist_id: int, api_key: str, image: UploadFile = Fil
     # ── Step 5: Upload to Supabase Storage ───────────────────
     try:
         permanent_url = await upload_to_supabase(temp_image_url, playlist_id)
-    except Exception:
+    except Exception as e:
+        print(f"SUPABASE UPLOAD ERROR: {e}")
         # If Supabase upload fails, return the temporary URL
         permanent_url = temp_image_url
 
